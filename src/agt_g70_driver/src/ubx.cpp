@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <array>
+#include <ctime>
 
 namespace agt_g70_driver
 {
@@ -12,6 +13,7 @@ constexpr uint8_t kSync2 = 0x62;
 constexpr std::size_t kHeaderSize = 6;
 constexpr std::size_t kChecksumSize = 2;
 constexpr std::array<uint8_t, 2> kSyncBytes{kSync1, kSync2};
+constexpr double kDegToRad = 0.01745329251994329576923690768489;
 
 bool checksum_valid(const std::vector<uint8_t> & bytes, std::size_t payload_size)
 {
@@ -25,8 +27,6 @@ bool checksum_valid(const std::vector<uint8_t> & bytes, std::size_t payload_size
   }
   return bytes[checksum_end] == ck_a && bytes[checksum_end + 1] == ck_b;
 }
-
-constexpr double kDegToRad = 0.01745329251994329576923690768489;
 
 uint16_t read_u16(const std::vector<uint8_t> & payload, std::size_t offset)
 {
@@ -155,6 +155,28 @@ std::optional<NavPvt> decode_nav_pvt(const UbxFrame & frame)
   nav.speed_accuracy_mps = static_cast<double>(read_u32(p, 68)) * 1e-3;
   nav.heading_accuracy_rad = static_cast<double>(read_u32(p, 72)) * 1e-5 * kDegToRad;
   return nav;
+}
+
+std::optional<int64_t> nav_pvt_unix_time_ns(const NavPvt & nav)
+{
+  if (!nav.time_valid || !nav.fully_resolved || nav.year < 1980U || nav.year > 2099U ||
+    nav.month < 1U || nav.month > 12U || nav.day < 1U || nav.day > 31U ||
+    nav.hour > 23U || nav.minute > 59U || nav.second > 60U ||
+    nav.nano_ns <= -1000000000 || nav.nano_ns >= 1000000000)
+  {
+    return std::nullopt;
+  }
+
+  std::tm utc{};
+  utc.tm_year = static_cast<int>(nav.year) - 1900;
+  utc.tm_mon = static_cast<int>(nav.month) - 1;
+  utc.tm_mday = static_cast<int>(nav.day);
+  utc.tm_hour = static_cast<int>(nav.hour);
+  utc.tm_min = static_cast<int>(nav.minute);
+  utc.tm_sec = static_cast<int>(nav.second);
+  const std::time_t seconds = ::timegm(&utc);
+  if (seconds < 0) return std::nullopt;
+  return static_cast<int64_t>(seconds) * 1000000000LL + static_cast<int64_t>(nav.nano_ns);
 }
 
 }  // namespace agt_g70_driver

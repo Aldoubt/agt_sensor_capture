@@ -58,6 +58,7 @@ struct NavPvt
 };
 
 std::optional<NavPvt> decode_nav_pvt(const UbxFrame & frame);
+std::optional<int64_t> nav_pvt_unix_time_ns(const NavPvt & nav);
 
 class UbxParser
 {

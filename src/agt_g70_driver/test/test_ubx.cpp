@@ -110,3 +110,16 @@ TEST(NavPvt, RejectsWrongMessageAndLength)
   payload.resize(91);
   EXPECT_FALSE(agt_g70_driver::decode_nav_pvt({0x01, 0x07, payload}).has_value());
 }
+
+TEST(NavPvtTime, RequiresValidFullyResolvedUtc)
+{
+  agt_g70_driver::NavPvt nav;
+  nav.year = 2026; nav.month = 8; nav.day = 16;
+  nav.hour = 8; nav.minute = 42; nav.second = 30;
+  nav.time_valid = true; nav.fully_resolved = true; nav.nano_ns = 123456789;
+  auto stamp = agt_g70_driver::nav_pvt_unix_time_ns(nav);
+  ASSERT_TRUE(stamp.has_value());
+  EXPECT_EQ(*stamp, 1786869750123456789LL);
+  nav.fully_resolved = false;
+  EXPECT_FALSE(agt_g70_driver::nav_pvt_unix_time_ns(nav).has_value());
+}

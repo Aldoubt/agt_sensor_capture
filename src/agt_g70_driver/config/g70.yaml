@@ -1,0 +1,7 @@
+agt_g70_driver:
+  ros__parameters:
+    port: "/dev/wheeltec_gnss"
+    baudrate: 9600
+    frame_id: "gnss_link"
+    read_timeout_ms: 200
+    expected_rate_hz: 5.0
