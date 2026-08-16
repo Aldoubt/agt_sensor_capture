@@ -16,6 +16,15 @@ CMAKE = '''else(ROS_EDITION STREQUAL "ROS2")
   endif()
 
   list(INSERT CMAKE_MODULE_PATH 0 "${PROJECT_SOURCE_DIR}/cmake/modules")
+
+  # get include directories of custom msg headers
+  if(HUMBLE_ROS STREQUAL "humble")
+    rosidl_get_typesupport_target(cpp_typesupport_target
+    ${LIVOX_INTERFACES} "rosidl_typesupport_cpp")
+  else()
+    set(LIVOX_INTERFACE_TARGET "${LIVOX_INTERFACES}__rosidl_typesupport_cpp")
+    get_target_property(LIVOX_INTERFACES_INCLUDE_DIRECTORIES ${LIVOX_INTERFACE_TARGET} INTERFACE_INCLUDE_DIRECTORIES)
+  endif()
 '''
 
 PACKAGE = '''<package format="3">
@@ -112,8 +121,11 @@ def test_livox_patcher_is_idempotent_and_creates_ros2_package_xml(tmp_path):
     second = run_patcher(repo)
     assert first.returncode == 0, first.stderr
     assert second.returncode == 0, second.stderr
+    cmake = (repo / "CMakeLists.txt").read_text()
     assert (repo / "package.xml").read_text() == (repo / "package_ROS2.xml").read_text()
-    assert "set(CMAKE_CXX_STANDARD 17)" in (repo / "CMakeLists.txt").read_text()
+    assert "set(CMAKE_CXX_STANDARD 17)" in cmake
+    assert 'set(HUMBLE_ROS "humble")' in cmake
+    assert 'set(DISTRO_ROS "humble")' not in cmake
     assert "<depend>agt_timebase</depend>" in (repo / "package.xml").read_text()
     assert (repo / "src/lddc.cpp").read_text().count("shared_timebase_writer_->write(") == 1
     assert (repo / "src/lddc.h").read_text().count("shared_timebase_writer_") == 1
