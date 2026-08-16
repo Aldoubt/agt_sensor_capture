@@ -9,6 +9,7 @@
 #include <string>
 #include <thread>
 
+#include <builtin_interfaces/msg/time.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/image_encodings.hpp>
 #include <sensor_msgs/msg/camera_info.hpp>
@@ -30,6 +31,11 @@ uint64_t steady_now_ns()
 {
   return static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::steady_clock::now().time_since_epoch()).count());
+}
+
+builtin_interfaces::msg::Time to_time_msg(const rclcpp::Time & time)
+{
+  return static_cast<builtin_interfaces::msg::Time>(time);
 }
 
 std::string camera_serial(const MV_CC_DEVICE_INFO * info)
@@ -223,12 +229,13 @@ private:
       MV_FRAME_OUT frame{};
       const int status = MV_CC_GetImageBuffer(camera_handle_, &frame, get_image_timeout_ms_);
       if (status != MV_OK) {
-        if (status == MV_E_NODATA || status == MV_E_GC_TIMEOUT) {
+        const auto status_code = static_cast<unsigned int>(status);
+        if (status_code == MV_E_NODATA || status_code == MV_E_GC_TIMEOUT) {
           ++sdk_timeout_count_;
           continue;
         }
         ++sdk_timeout_count_;
-        RCLCPP_WARN(get_logger(), "MV_CC_GetImageBuffer failed: 0x%x", status);
+        RCLCPP_WARN(get_logger(), "MV_CC_GetImageBuffer failed: 0x%x", status_code);
         continue;
       }
       ++sdk_receive_count_;
@@ -265,7 +272,8 @@ private:
       }
 
       sensor_msgs::msg::Image image;
-      image.header.stamp = rclcpp::Time(static_cast<int64_t>(decision.stamp_ns), RCL_SYSTEM_TIME).to_msg();
+      image.header.stamp = to_time_msg(
+        rclcpp::Time(static_cast<int64_t>(decision.stamp_ns), RCL_SYSTEM_TIME));
       image.header.frame_id = frame_id_;
       image.height = height;
       image.width = width;
@@ -303,7 +311,7 @@ private:
     rate_publish_start_ = pub_count;
 
     agt_capture_msgs::msg::CameraStatus status;
-    status.header.stamp = system_clock_.now().to_msg();
+    status.header.stamp = to_time_msg(system_clock_.now());
     status.header.frame_id = frame_id_;
     status.sdk_receive_count = sdk_count;
     status.sdk_timeout_count = sdk_timeout_count_.load();
