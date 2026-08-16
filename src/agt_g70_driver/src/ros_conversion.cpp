@@ -2,10 +2,20 @@
 
 #include <cmath>
 
+#include <builtin_interfaces/msg/time.hpp>
 #include <sensor_msgs/msg/nav_sat_status.hpp>
 
 namespace agt_g70_driver
 {
+namespace
+{
+
+builtin_interfaces::msg::Time to_time_msg(const rclcpp::Time & time)
+{
+  return static_cast<builtin_interfaces::msg::Time>(time);
+}
+
+}  // namespace
 
 std::optional<RosGnssSample> to_ros_sample(
   const NavPvt & nav,
@@ -26,7 +36,7 @@ std::optional<RosGnssSample> to_ros_sample(
   const rclcpp::Time sample_stamp = sensor_time_ns.has_value() ?
     rclcpp::Time(*sensor_time_ns, RCL_SYSTEM_TIME) : host_receive_time;
 
-  sample.fix.header.stamp = sample_stamp.to_msg();
+  sample.fix.header.stamp = to_time_msg(sample_stamp);
   sample.fix.header.frame_id = frame_id;
   const bool has_position = nav.gnss_fix_ok && nav.fix_type >= 2U && nav.fix_type <= 4U;
   sample.fix.status.status = has_position ?
@@ -47,7 +57,7 @@ std::optional<RosGnssSample> to_ros_sample(
     sample.fix.position_covariance_type = sensor_msgs::msg::NavSatFix::COVARIANCE_TYPE_UNKNOWN;
   }
 
-  sample.velocity.header.stamp = sample_stamp.to_msg();
+  sample.velocity.header.stamp = to_time_msg(sample_stamp);
   sample.velocity.header.frame_id = frame_id;
   sample.velocity.twist.twist.linear.x = nav.velocity_e_mps;
   sample.velocity.twist.twist.linear.y = nav.velocity_n_mps;
@@ -57,16 +67,16 @@ std::optional<RosGnssSample> to_ros_sample(
   sample.velocity.twist.covariance[7] = speed_var;
   sample.velocity.twist.covariance[14] = speed_var;
 
-  sample.time_reference.header.stamp = host_receive_time.to_msg();
+  sample.time_reference.header.stamp = to_time_msg(host_receive_time);
   sample.time_reference.header.frame_id = frame_id;
   if (sensor_time_ns.has_value()) {
-    sample.time_reference.time_ref = rclcpp::Time(*sensor_time_ns, RCL_SYSTEM_TIME).to_msg();
+    sample.time_reference.time_ref = to_time_msg(rclcpp::Time(*sensor_time_ns, RCL_SYSTEM_TIME));
   }
   sample.time_reference.source = "WHEELTEC_G70_UBX_NAV_PVT";
 
-  sample.status.header.stamp = sample_stamp.to_msg();
+  sample.status.header.stamp = to_time_msg(sample_stamp);
   sample.status.header.frame_id = frame_id;
-  sample.status.host_receive_time = host_receive_time.to_msg();
+  sample.status.host_receive_time = to_time_msg(host_receive_time);
   sample.status.i_tow_ms = nav.i_tow_ms;
   sample.status.time_accuracy_ns = nav.time_accuracy_ns;
   sample.status.time_valid = sensor_time_ns.has_value();
