@@ -13,5 +13,3 @@ if [[ ! -f "$repo/package_ROS2.xml" ]]; then
 fi
 
 "$root/scripts/apply_livox_patch.sh" "$repo"
-cp -f "$repo/package_ROS2.xml" "$repo/package.xml"
-echo "Prepared livox_ros_driver2 for ROS 2 Humble: $repo/package.xml"
