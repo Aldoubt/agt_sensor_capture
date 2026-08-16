@@ -8,6 +8,7 @@
 #include <thread>
 #include <utility>
 
+#include <builtin_interfaces/msg/time.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
@@ -29,6 +30,11 @@ diagnostic_msgs::msg::KeyValue kv(std::string key, uint64_t value)
   item.key = std::move(key);
   item.value = std::to_string(value);
   return item;
+}
+
+builtin_interfaces::msg::Time to_time_msg(const rclcpp::Time & time)
+{
+  return static_cast<builtin_interfaces::msg::Time>(time);
 }
 }  // namespace
 
@@ -113,7 +119,7 @@ private:
   void publish_diagnostics()
   {
     diagnostic_msgs::msg::DiagnosticArray array;
-    array.header.stamp = system_clock_.now().to_msg();
+    array.header.stamp = to_time_msg(system_clock_.now());
     diagnostic_msgs::msg::DiagnosticStatus status;
     status.name = "agt_g70_driver";
     status.hardware_id = "WHEELTEC_G70";
