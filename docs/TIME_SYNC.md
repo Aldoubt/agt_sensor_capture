@@ -8,6 +8,8 @@ The rejected legacy design matched camera and LiDAR by host-arrival time and cou
 
 A stale, repeated or unavailable shared timebase is diagnostic evidence. It must not itself cause a captured camera frame to be dropped.
 
+A stale or repeated but structurally valid timebase is still attached to the captured frame and counted in `CameraStatus`; an unavailable/invalid timebase falls back to host system time and sets `timebase_valid=false`. This preserves the raw frame while making the degraded timing claim explicit. The camera reopens the shared timebase lazily, so starting it before the Livox writer does not require restarting the camera node.
+
 ## Applying the pinned Livox integration patch
 
 Import the exact upstream revision declared in `dependencies.repos`, then apply the AGT patch:

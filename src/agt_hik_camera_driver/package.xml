@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>agt_hik_camera_driver</name>
+  <version>0.1.0</version>
+  <description>ROS 2 Line0-triggered Hikrobot acquisition with LiDAR-derived sensor time.</description>
+  <maintainer email="xuanyang.robotics@gmail.com">Xuan Yang</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>camera_info_manager</depend>
+  <depend>agt_capture_msgs</depend>
+  <depend>agt_timebase</depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+  <export><build_type>ament_cmake</build_type></export>
+</package>
