@@ -36,7 +36,7 @@ def patch_repo(repo: Path) -> None:
     cmake = _replace(
         cmake,
         '''  # Default to C++14\n  if(NOT CMAKE_CXX_STANDARD)\n    set(CMAKE_CXX_STANDARD 14)\n  endif()\n\n  list(INSERT CMAKE_MODULE_PATH 0 "${PROJECT_SOURCE_DIR}/cmake/modules")''',
-        '''  # AGT timebase uses C++17 library interfaces.\n  if(NOT CMAKE_CXX_STANDARD)\n    set(CMAKE_CXX_STANDARD 17)\n  endif()\n\n  # This AGT pin targets ROS 2 Humble unless a distro is supplied explicitly.\n  if(NOT DISTRO_ROS)\n    set(DISTRO_ROS "humble")\n  endif()\n\n  list(INSERT CMAKE_MODULE_PATH 0 "${PROJECT_SOURCE_DIR}/cmake/modules")''',
+        '''  # AGT timebase uses C++17 library interfaces.\n  if(NOT CMAKE_CXX_STANDARD)\n    set(CMAKE_CXX_STANDARD 17)\n  endif()\n\n  # livox_ros_driver2 1.2.4 selects its ROS 2 Humble typesupport path with HUMBLE_ROS.\n  if(NOT HUMBLE_ROS)\n    set(HUMBLE_ROS "humble")\n  endif()\n\n  list(INSERT CMAKE_MODULE_PATH 0 "${PROJECT_SOURCE_DIR}/cmake/modules")''',
         "CMakeLists.txt C++17/Humble anchor",
     )
 
@@ -84,6 +84,7 @@ def patch_repo(repo: Path) -> None:
 
     checks = {
         "CMakeLists.txt C++17": (cmake, "set(CMAKE_CXX_STANDARD 17)", 1),
+        "CMakeLists.txt Humble selector": (cmake, 'set(HUMBLE_ROS "humble")', 1),
         "package agt_timebase": (package, "<depend>agt_timebase</depend>", 1),
         "lddc.cpp write": (cpp, "shared_timebase_writer_->write(", 1),
         "lddc.cpp exact sensor-time write": (
