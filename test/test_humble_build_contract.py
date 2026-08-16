@@ -5,13 +5,9 @@ LIVOX_PIN = "6b9356cadf77084619ba406e6a0eb41163b08039"
 
 
 def test_humble_sources_do_not_use_rclcpp_time_to_msg():
-    sources = [
-        ROOT / "src/agt_hik_camera_driver/src/camera_node.cpp",
-        ROOT / "src/agt_g70_driver/src/ros_conversion.cpp",
-        ROOT / "src/agt_capture_monitor/src/monitor_node.cpp",
-    ]
-    for source in sources:
-        assert ".to_msg()" not in source.read_text(), source
+    sources = list((ROOT / "src").rglob("*.cpp")) + list((ROOT / "src").rglob("*.hpp"))
+    offenders = [str(source.relative_to(ROOT)) for source in sources if ".to_msg()" in source.read_text()]
+    assert not offenders, offenders
 
 
 def test_livox_pin_matches_mid360_compatible_baseline():
