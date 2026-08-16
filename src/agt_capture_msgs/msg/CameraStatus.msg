@@ -1,0 +1,14 @@
+std_msgs/Header header
+uint64 sdk_receive_count
+uint64 sdk_timeout_count
+uint64 conversion_failure_count
+uint64 publish_count
+uint64 frame_gap_count
+uint64 timestamp_rollback_count
+uint64 stale_timebase_count
+uint64 repeated_timebase_count
+uint64 last_frame_number
+uint64 last_trigger_index
+float64 sdk_rate_hz
+float64 publish_rate_hz
+bool timebase_valid

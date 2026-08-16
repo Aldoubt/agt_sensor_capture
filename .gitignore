@@ -1,0 +1,9 @@
+build/
+install/
+log/
+.worktrees/
+.superpowers/
+*.db3
+*.mcap
+__pycache__/
+.pytest_cache/
