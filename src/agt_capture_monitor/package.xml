@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>agt_capture_monitor</name>
+  <version>0.1.0</version>
+  <description>Observer-only rate, timestamp and synchronization diagnostics for AGT sensor capture.</description>
+  <maintainer email="xuanyang.robotics@gmail.com">Xuan Yang</maintainer>
+  <license>Apache-2.0</license>
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>diagnostic_msgs</depend>
+  <depend>livox_ros_driver2</depend>
+  <depend>agt_capture_msgs</depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+  <export><build_type>ament_cmake</build_type></export>
+</package>
