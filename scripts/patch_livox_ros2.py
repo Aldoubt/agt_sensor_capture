@@ -4,7 +4,7 @@ import argparse
 import shutil
 import subprocess
 
-PINNED_COMMIT = "4a1def929e5b59c7a8122d19fce6efba581ce9f7"
+PINNED_COMMIT = "6b9356cadf77084619ba406e6a0eb41163b08039"
 
 
 def _replace(text: str, before: str, after: str, label: str) -> str:
