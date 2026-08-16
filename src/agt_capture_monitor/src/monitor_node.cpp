@@ -6,6 +6,7 @@
 #include <string>
 #include <utility>
 
+#include <builtin_interfaces/msg/time.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <diagnostic_msgs/msg/diagnostic_array.hpp>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
@@ -28,6 +29,11 @@ int64_t stamp_to_ns(const builtin_interfaces::msg::Time & stamp)
 {
   return static_cast<int64_t>(stamp.sec) * 1000000000LL +
     static_cast<int64_t>(stamp.nanosec);
+}
+
+builtin_interfaces::msg::Time to_time_msg(const rclcpp::Time & time)
+{
+  return static_cast<builtin_interfaces::msg::Time>(time);
 }
 
 diagnostic_msgs::msg::KeyValue kv(std::string key, std::string value)
@@ -193,7 +199,7 @@ private:
   void publish_status()
   {
     diagnostic_msgs::msg::DiagnosticArray array;
-    array.header.stamp = now().to_msg();
+    array.header.stamp = to_time_msg(now());
     array.status.push_back(stream_status("agt_capture_monitor/lidar", lidar_, 9.5, 10.5));
     array.status.push_back(stream_status("agt_capture_monitor/imu", imu_, 180.0, 220.0));
     array.status.push_back(camera_status());
