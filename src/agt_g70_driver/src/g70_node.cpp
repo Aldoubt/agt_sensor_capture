@@ -68,8 +68,8 @@ public:
     worker_ = std::thread(&G70Node::read_loop, this);
     diagnostic_timer_ = create_wall_timer(1s, std::bind(&G70Node::publish_diagnostics, this));
     RCLCPP_INFO(
-      get_logger(), "G70 read-only UBX NAV-PVT acquisition started: %s @ %d baud, expected %.1f Hz",
-      port.c_str(), baudrate, expected_rate_hz_);
+      get_logger(), "G70 read-only UBX NAV-PVT acquisition started: %s @ %lld baud, expected %.1f Hz",
+      port.c_str(), static_cast<long long>(baudrate), expected_rate_hz_);
   }
 
   ~G70Node() override
