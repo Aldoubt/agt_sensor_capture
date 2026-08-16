@@ -1,0 +1,73 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 850b08f..de7bbc2 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -11,7 +11,7 @@ else(ROS_EDITION STREQUAL "ROS2")
+   endif()
+ 
+-  # Default to C++14
++  # AGT timebase uses C++17 library interfaces.
+   if(NOT CMAKE_CXX_STANDARD)
+-    set(CMAKE_CXX_STANDARD 14)
++    set(CMAKE_CXX_STANDARD 17)
+   endif()
+ 
+diff --git a/package_ROS2.xml b/package_ROS2.xml
+index cb8e1ff..8a99b05 100644
+--- a/package_ROS2.xml
++++ b/package_ROS2.xml
+@@ -9,4 +9,5 @@
+   <depend>rcl_interfaces</depend>
+   <depend>libpcl-all-dev</depend>
++  <depend>agt_timebase</depend>
+ 
+   <exec_depend>rosbag2</exec_depend>
+diff --git a/src/lddc.cpp b/src/lddc.cpp
+index f39299a..6778b0c 100644
+--- a/src/lddc.cpp
++++ b/src/lddc.cpp
+@@ -3,4 +3,6 @@
+ #include "comm/comm.h"
+ 
++#include <chrono>
++
+ #include <inttypes.h>
+ #include <iostream>
+@@ -27,4 +29,5 @@ Lddc::Lddc(int format, int multi_topic, int data_src, int output_type,
+   publish_period_ns_ = kNsPerSecond / publish_frq_;
+   lds_ = nullptr;
++  shared_timebase_writer_ = std::make_unique<agt_timebase::SharedTimebaseWriter>();
+ #if 0
+   bag_ = nullptr;
+@@ -45,4 +48,11 @@ void Lddc::PublishCustomPointcloud(LidarDataQueue *queue, uint8_t index) {
+     InitCustomMsg(livox_msg, pkg, index);
+     FillPointsToCustomMsg(livox_msg, pkg);
++    if (shared_timebase_writer_) {
++      const auto host_steady_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(
++          std::chrono::steady_clock::now().time_since_epoch()).count();
++      shared_timebase_writer_->write(
++          static_cast<uint64_t>(pkg.base_time),
++          static_cast<uint64_t>(host_steady_ns));
++    }
+     PublishCustomPointData(livox_msg, index);
+   }
+diff --git a/src/lddc.h b/src/lddc.h
+index 1b2a354..c50aa19 100644
+--- a/src/lddc.h
++++ b/src/lddc.h
+@@ -7,4 +7,9 @@
+ #include "lds.h"
+ 
++#ifdef BUILDING_ROS2
++#include <memory>
++#include "agt_timebase/shared_timebase.hpp"
++#endif
++
+ namespace livox_ros {
+ 
+@@ -19,4 +24,5 @@ class Lddc final {
+   PublisherPtr private_imu_pub_[kMaxSourceLidar];
+   PublisherPtr global_imu_pub_;
++  std::unique_ptr<agt_timebase::SharedTimebaseWriter> shared_timebase_writer_;
+ #endif
+ 

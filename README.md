@@ -21,6 +21,12 @@ See [`docs/TOPIC_CONTRACT.md`](docs/TOPIC_CONTRACT.md) and [`docs/TIME_SYNC.md`]
 
 `dependencies.repos` pins the official `Livox-SDK/livox_ros_driver2` revision used by v0.1.
 
+After importing it, apply the small AGT timebase patch:
+
+```bash
+scripts/apply_livox_patch.sh src/livox_ros_driver2
+```
+
 ## Build
 
 ```bash
