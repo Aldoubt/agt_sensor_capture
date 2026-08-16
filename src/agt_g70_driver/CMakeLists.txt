@@ -6,6 +6,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 find_package(ament_cmake REQUIRED)
+find_package(Threads REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(geometry_msgs REQUIRED)
@@ -35,7 +36,7 @@ ament_target_dependencies(agt_g70_ros_conversion
 
 add_executable(g70_node src/g70_node.cpp)
 target_compile_features(g70_node PUBLIC cxx_std_17)
-target_link_libraries(g70_node agt_g70_ubx agt_g70_serial agt_g70_ros_conversion)
+target_link_libraries(g70_node agt_g70_ubx agt_g70_serial agt_g70_ros_conversion Threads::Threads)
 ament_target_dependencies(g70_node
   rclcpp sensor_msgs geometry_msgs diagnostic_msgs agt_capture_msgs)
 

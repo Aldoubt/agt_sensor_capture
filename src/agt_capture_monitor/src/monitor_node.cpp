@@ -157,6 +157,10 @@ private:
     if (camera_status_.timestamp_rollback_count > 0U) {
       status.level = diagnostic_msgs::msg::DiagnosticStatus::ERROR;
       status.message = "camera timestamp rollback observed";
+    } else if (!camera_status_.timebase_valid || camera_status_.frame_gap_count > 0U ||
+               camera_status_.stale_timebase_count > 0U || camera_status_.repeated_timebase_count > 0U) {
+      status.level = diagnostic_msgs::msg::DiagnosticStatus::WARN;
+      status.message = "camera acquisition/timing evidence degraded";
     }
     status.values.push_back(kv("sdk_rate_hz", camera_status_.sdk_rate_hz));
     status.values.push_back(kv("publish_rate_hz", camera_status_.publish_rate_hz));
@@ -189,7 +193,7 @@ private:
   void publish_status()
   {
     diagnostic_msgs::msg::DiagnosticArray array;
-    array.header.stamp = now();
+    array.header.stamp = now().to_msg();
     array.status.push_back(stream_status("agt_capture_monitor/lidar", lidar_, 9.5, 10.5));
     array.status.push_back(stream_status("agt_capture_monitor/imu", imu_, 180.0, 220.0));
     array.status.push_back(camera_status());

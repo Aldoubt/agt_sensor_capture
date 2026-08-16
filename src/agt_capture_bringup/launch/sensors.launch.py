@@ -29,7 +29,6 @@ def generate_launch_description():
     g70_params = LaunchConfiguration("g70_params")
     g70_port = LaunchConfiguration("g70_port")
     g70_baud = LaunchConfiguration("g70_baud")
-    timebase_path = LaunchConfiguration("timebase_path")
     camera_start_delay_s = LaunchConfiguration("camera_start_delay_s")
 
     livox = Node(
@@ -59,7 +58,7 @@ def generate_launch_description():
         executable="camera_node",
         name="agt_hik_camera_driver",
         output="screen",
-        parameters=[camera_params, {"timebase_path": timebase_path}],
+        parameters=[camera_params],
     )
 
     g70 = Node(
@@ -93,7 +92,6 @@ def generate_launch_description():
             ),
             DeclareLaunchArgument("g70_port", default_value="/dev/wheeltec_gnss"),
             DeclareLaunchArgument("g70_baud", default_value="9600"),
-            DeclareLaunchArgument("timebase_path", default_value="/dev/shm/agt_livox_timebase"),
             DeclareLaunchArgument("camera_start_delay_s", default_value="2.0"),
             OpaqueFunction(function=_validate_paths),
             livox,

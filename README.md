@@ -56,12 +56,13 @@ source /opt/ros/humble/setup.bash
 
 vcs import src < dependencies.repos
 ./scripts/prepare_livox_ros2.sh src/livox_ros_driver2
+rosdep install --from-paths src --ignore-src -r -y
 
 colcon build --symlink-install --event-handlers console_direct+
 source install/setup.bash
 ```
 
-The helper is idempotent. It applies the pinned AGT timebase patch and copies the patched `package_ROS2.xml` to `package.xml` so normal `colcon` discovery works.
+The helper is idempotent. It applies the pinned AGT timebase patch and copies the patched `package_ROS2.xml` to `package.xml` so normal `colcon` discovery works. In v0.1 the shared path is deliberately frozen to `/dev/shm/agt_livox_timebase`; do not configure a different camera timebase path unless the Livox writer is changed at the same time.
 
 ## Start all sensors
 

@@ -76,7 +76,7 @@ def main():
     finally:
         report = {name: stats.report() for name, stats in node.stats.items()}
         print(json.dumps(report, indent=2, sort_keys=True))
-        ok = all(stats.rollbacks == 0 and stats.count > 0 for stats in node.stats.values())
+        ok = all(stats.duplicates == 0 and stats.rollbacks == 0 and stats.count > 0 for stats in node.stats.values())
         node.destroy_node()
         rclpy.shutdown()
     return 0 if ok else 2
